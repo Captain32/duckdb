@@ -78,7 +78,8 @@ enum class BindingMode : uint8_t {
 	STANDARD_BINDING,
 	EXTRACT_NAMES,
 	EXTRACT_REPLACEMENT_SCANS,
-	EXTRACT_QUALIFIED_NAMES
+	EXTRACT_QUALIFIED_NAMES,
+	SKIP_BIND_DEFAULTS
 };
 enum class BinderType : uint8_t { REGULAR_BINDER, VIEW_BINDER };
 
@@ -333,6 +334,9 @@ public:
 	unique_ptr<LogicalOperator> UnionOperators(vector<unique_ptr<LogicalOperator>> nodes);
 
 	void SetSearchPath(Catalog &catalog, const string &schema);
+
+	void BindDefaultValue(const ColumnDefinition &column, vector<unique_ptr<Expression>> &bound_defaults,
+	                      const string &catalog = "", const string &schema = "");
 
 private:
 	//! The parent binder (if any)

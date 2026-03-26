@@ -311,6 +311,13 @@ void Binder::BindGeneratedColumns(BoundCreateTableInfo &info) {
 	}
 }
 
+void Binder::BindDefaultValue(const ColumnDefinition &column, vector<unique_ptr<Expression>> &bound_defaults,
+                              const string &catalog, const string &schema) {
+	ColumnList col_list;
+	col_list.AddColumn(column.Copy());
+	BindDefaultValues(col_list, bound_defaults, catalog, schema);
+}
+
 void Binder::BindDefaultValues(const ColumnList &columns, vector<unique_ptr<Expression>> &bound_defaults,
                                const string &catalog_name, const string &schema_p) {
 	string schema_name = schema_p;
@@ -677,10 +684,12 @@ unique_ptr<BoundCreateTableInfo> Binder::BindCreateTableInfo(unique_ptr<CreateIn
 			throw BinderException("Constraints on generated columns are not supported yet");
 		}
 		bound_constraints = BindNewConstraints(base.constraints, base.table, base.columns);
-		// bind the default values
-		auto &catalog_name = schema.ParentCatalog().GetName();
-		auto &schema_name = schema.name;
-		BindDefaultValues(base.columns, bound_defaults, catalog_name, schema_name);
+		if (GetBindingMode() != BindingMode::SKIP_BIND_DEFAULTS) {
+			// bind the default values
+			auto &catalog_name = schema.ParentCatalog().GetName();
+			auto &schema_name = schema.name;
+			BindDefaultValues(base.columns, bound_defaults, catalog_name, schema_name);
+		}
 	}
 
 	if (base.columns.PhysicalColumnCount() == 0) {
