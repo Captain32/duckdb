@@ -799,6 +799,7 @@ AdbcStatusCode AdbcDriverManagerDatabaseSetInitFunc(struct AdbcDatabase *databas
 }
 
 AdbcStatusCode AdbcDatabaseInit(struct AdbcDatabase *database, struct AdbcError *error) {
+	printf("111111111\n");
 	if (!database->private_data) {
 		SetError(error, "Must call AdbcDatabaseNew first");
 		return ADBC_STATUS_INVALID_STATE;
@@ -811,17 +812,21 @@ AdbcStatusCode AdbcDatabaseInit(struct AdbcDatabase *database, struct AdbcError 
 		return ADBC_STATUS_INVALID_ARGUMENT;
 	}
 
+	printf("222222222\n");
 	database->private_driver = new AdbcDriver;
 	std::memset(database->private_driver, 0, sizeof(AdbcDriver));
 	AdbcStatusCode status;
 	// So we don't confuse a driver into thinking it's initialized already
 	database->private_data = nullptr;
 	if (args->init_func) {
+		printf("3333333333333\n");
 		status = AdbcLoadDriverFromInitFunc(args->init_func, ADBC_VERSION_1_1_0, database->private_driver, error);
 	} else if (!args->entrypoint.empty()) {
+		printf("44444444444444\n");
 		status = AdbcLoadDriver(args->driver.c_str(), args->entrypoint.c_str(), ADBC_VERSION_1_1_0,
 		                        database->private_driver, error);
 	} else {
+		printf("55555555555555\n");
 		status = AdbcLoadDriver(args->driver.c_str(), nullptr, ADBC_VERSION_1_1_0, database->private_driver, error);
 	}
 	if (status != ADBC_STATUS_OK) {
@@ -834,6 +839,7 @@ AdbcStatusCode AdbcDatabaseInit(struct AdbcDatabase *database, struct AdbcError 
 		database->private_driver = nullptr;
 		return status;
 	}
+	printf("66666666666\n");
 	status = database->private_driver->DatabaseNew(database, error);
 	if (status != ADBC_STATUS_OK) {
 		if (database->private_driver->release) {
@@ -843,6 +849,7 @@ AdbcStatusCode AdbcDatabaseInit(struct AdbcDatabase *database, struct AdbcError 
 		database->private_driver = nullptr;
 		return status;
 	}
+	printf("777777777777\n");
 	auto options = std::move(args->options);
 	auto bytes_options = std::move(args->bytes_options);
 	auto int_options = std::move(args->int_options);
@@ -888,6 +895,7 @@ AdbcStatusCode AdbcDatabaseInit(struct AdbcDatabase *database, struct AdbcError 
 		database->private_data = nullptr;
 		return status;
 	}
+	printf("88888888888\n");
 	return database->private_driver->DatabaseInit(database, error);
 }
 
